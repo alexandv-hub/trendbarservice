@@ -12,8 +12,6 @@ spring:
       path: /h2-console
       settings.trace: false
       settings.web-allow-others: false
-microbatcher:
-  execution:
-    threshold: 100
-  timeout:
-    threshold: 10000
+quotesProducerTestService:
+  interval:
+    millis: 1000

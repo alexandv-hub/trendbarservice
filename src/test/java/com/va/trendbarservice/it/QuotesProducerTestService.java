@@ -5,8 +5,10 @@ import com.va.trendbarservice.model.Symbol;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -21,7 +23,9 @@ import java.util.concurrent.*;
 @RequiredArgsConstructor
 public class QuotesProducerTestService {
 
-    public static final int INTERVAL = 1000;
+    @Setter
+    @Value("${quotesProducerTestService.interval.millis}")
+    private long INTERVAL;
 
     @Autowired
     public final ConcurrentLinkedQueue<Quote> quotesQueue;

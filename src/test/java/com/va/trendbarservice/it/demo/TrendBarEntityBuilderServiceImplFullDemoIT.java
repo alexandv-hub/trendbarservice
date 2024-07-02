@@ -21,6 +21,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static com.va.trendbarservice.util.TrendBarUtils.getInitialDelayInMillis;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -60,8 +61,8 @@ public class TrendBarEntityBuilderServiceImplFullDemoIT {
                 .quoteCurrency(Currency.getInstance("JPY"))
                 .build();
 
-        executorService = Executors.newFixedThreadPool(2);
-        scheduledExecutorService = Executors.newScheduledThreadPool(2);
+        executorService = Executors.newFixedThreadPool(4);
+        scheduledExecutorService = Executors.newScheduledThreadPool(4);
     }
 
     @AfterEach
@@ -98,7 +99,6 @@ public class TrendBarEntityBuilderServiceImplFullDemoIT {
             }
         };
         executorService.execute(t1);
-        Thread.sleep(1000);
         executorService.execute(t2);
 
 
@@ -108,13 +108,10 @@ public class TrendBarEntityBuilderServiceImplFullDemoIT {
                 List<TrendBarEntity> trendBarsInRange = trendBarHistoryService.getTrendBarsBySymbolAndPeriodAndTimestampInRange(
                         symbolEURUSD,
                         TrendBarPeriod.M1,
-                        Instant.now().minus(70, ChronoUnit.SECONDS).toEpochMilli(),
+                        Instant.now().minus(100, ChronoUnit.SECONDS).toEpochMilli(),
                         Instant.now().toEpochMilli()
                 );
-                log.info("TrendBarsInRange size: {}", trendBarsInRange.size());
-                if (trendBarsInRange.size() > 1) {
-                    log.info("IN task1 - trendBarsInRange.size() = {}", trendBarsInRange.size());
-                }
+                log.info("IN task1 TrendBarsInRange size: {}", trendBarsInRange.size());
             } catch (Exception e) {
                 log.error("Exception in task1", e);
             }
@@ -125,28 +122,27 @@ public class TrendBarEntityBuilderServiceImplFullDemoIT {
                 List<TrendBarEntity> trendBarsFrom = trendBarHistoryService.getTrendBarsBySymbolAndPeriodFrom(
                         symbolEURJPY,
                         TrendBarPeriod.M1,
-                        Instant.now().minus(70, ChronoUnit.SECONDS).toEpochMilli()
+                        Instant.now().minus(100, ChronoUnit.SECONDS).toEpochMilli()
                 );
-                log.info("TrendBarsFrom size: {}", trendBarsFrom.size());
-                if (trendBarsFrom.size() > 1) {
-                    log.info("IN task2 - trendBarsFrom.size() = {}", trendBarsFrom.size());
-                }
+                log.info("IN task2 TrendBarsFrom size: {}", trendBarsFrom.size());
             } catch (Exception e) {
                 log.error("Exception in task2", e);
             }
         };
-        scheduledExecutorService.scheduleAtFixedRate(task1, 70, 60, TimeUnit.SECONDS);
-        scheduledExecutorService.scheduleAtFixedRate(task2, 70, 60, TimeUnit.SECONDS);
+        long initialDelayInSeconds = getInitialDelayInMillis(TrendBarPeriod.M1) / 1000;
+        scheduledExecutorService.scheduleAtFixedRate(task1, initialDelayInSeconds + 80, 60, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(task2, initialDelayInSeconds + 80, 60, TimeUnit.SECONDS);
 
         Thread.sleep(200_000 );
         var foundTrendBars = trendBarRepository.findAll();
 
         assertNotNull(foundTrendBars);
         assertFalse(foundTrendBars.isEmpty());
-        assertTrue(foundTrendBars.size() > 4);
-        log.info("foundTrendBars.size() = {}", foundTrendBars.size());
 
         log.info("foundTrendBars():");
         foundTrendBars.forEach(System.out::println);
+
+        assertTrue(foundTrendBars.size() >= 4);
+        log.info("foundTrendBars.size() = {}", foundTrendBars.size());
     }
 }

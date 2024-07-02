@@ -22,6 +22,7 @@ public class QuotesProducerTestServiceIT {
     public void setUp() {
         quotesQueue = new ConcurrentLinkedQueue<>();
         underTest = new QuotesProducerTestService(quotesQueue);
+        underTest.setINTERVAL(1000L);
     }
 
     @Test

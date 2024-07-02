@@ -1,6 +1,7 @@
 package com.va.trendbarservice.util;
 
 import com.va.trendbarservice.model.TrendBarPeriod;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -12,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class TrendBarEntityUtilsTest {
+
+    @AfterEach
+    public void tearDown() {
+        TrendBarUtils.setFixedInstant(null);
+    }
 
     @Test
     public void givenPeriodOfOneMinute_whenGetInitialDelayInMillis_thenCorrectInitialDelay() {

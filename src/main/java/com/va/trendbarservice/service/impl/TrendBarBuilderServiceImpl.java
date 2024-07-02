@@ -5,8 +5,8 @@ import com.va.trendbarservice.service.TrendBarBatchProcessor;
 import com.va.trendbarservice.service.TrendBarBuilderService;
 import com.va.trendbarservice.util.MicroBatcher;
 import jakarta.annotation.PostConstruct;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,21 +24,21 @@ import static com.va.trendbarservice.util.TrendBarUtils.getStartOfPeriod;
 
 @Slf4j
 @Service
-@Builder
 @RequiredArgsConstructor
 public class TrendBarBuilderServiceImpl implements TrendBarBuilderService {
 
-    @Value("${microbatcher.execution.threshold}")
-    public static int MICROBATCHER_EXECUTION_THRESHOLD;
+    @Setter
+    @Value("${microbatcher.execution.threshold.number}")
+    private int MICROBATCHER_EXECUTION_THRESHOLD_NUMBER;
 
-    @Value("${microbatcher.timeout.threshold}")
-    public static int MICROBATCHER_TIMEOUT_THRESHOLD = 10_000;
+    @Setter
+    @Value("${microbatcher.timeout.threshold.millis}")
+    private long MICROBATCHER_TIMEOUT_THRESHOLD_MILLIS;
     
     private final ConcurrentMap<TrendBarKey, LinkedBlockingQueue<Quote>> keyToQuotesQueueMap;
     private final ConcurrentMap<TrendBar, Optional<ScheduledFuture<?>>> currBuildersMap;
     private final ConcurrentMap<TrendBar, MicroBatcher> currMicroBatchersMap;
     private final TrendBarBatchProcessor batchProcessor;
-    private final ConcurrentMap<TrendBar, TrendBarEntity> currTrendBarEntitiesMap;
 
     @Override
     @PostConstruct
@@ -89,7 +89,7 @@ public class TrendBarBuilderServiceImpl implements TrendBarBuilderService {
         keyToQuotesQueueMap.computeIfAbsent(key, k -> new LinkedBlockingQueue<>());
 
         var finalTrendBar = trendBar;
-        var microBatcher = new MicroBatcher(keyToQuotesQueueMap.get(key), MICROBATCHER_EXECUTION_THRESHOLD, MICROBATCHER_TIMEOUT_THRESHOLD, finalTrendBar, (quotesBatch, isBatchFinal) -> {
+        var microBatcher = new MicroBatcher(keyToQuotesQueueMap.get(key), MICROBATCHER_EXECUTION_THRESHOLD_NUMBER, MICROBATCHER_TIMEOUT_THRESHOLD_MILLIS, finalTrendBar, (quotesBatch, isBatchFinal) -> {
             log.info("Processing batch of size: {} for key: {}, isBatchFinal = {}", quotesBatch.size(), trendBarKeyStr, isBatchFinal);
             batchProcessor.processMicroBatch(quotesBatch, finalTrendBar, isBatchFinal);
         });

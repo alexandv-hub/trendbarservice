@@ -16,6 +16,8 @@ spring:
       settings.web-allow-others: false
 microbatcher:
   execution:
-    threshold: 100
+    threshold:
+      number: 10
   timeout:
-    threshold: 10000
+    threshold:
+      millis: 10000

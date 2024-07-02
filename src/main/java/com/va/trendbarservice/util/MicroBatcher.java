@@ -18,7 +18,7 @@ public class MicroBatcher {
 
     private final LinkedBlockingQueue<Quote> trendBarKeyQuotesQueue;
     private final int executionThreshold;
-    private final int timeoutThreshold;
+    private final long timeoutThreshold;
     private final List<Runnable> taskList = new ArrayList<>();
     private final BiConsumer<List<Quote>, Boolean> executionLogic;
 
@@ -37,7 +37,7 @@ public class MicroBatcher {
     public MicroBatcher(
             LinkedBlockingQueue<Quote> trendBarKeyQuotesQueue,
             int executionThreshold,
-            int timeoutThreshold,
+            long timeoutThreshold,
             TrendBar trendBar,
             BiConsumer<List<Quote>, Boolean> executionLogic) {
         this.trendBarKeyQuotesQueue = trendBarKeyQuotesQueue;

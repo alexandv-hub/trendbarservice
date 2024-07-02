@@ -4,7 +4,6 @@ import com.va.trendbarservice.model.*;
 import com.va.trendbarservice.service.TrendBarBatchProcessor;
 import com.va.trendbarservice.util.MicroBatcher;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,12 +62,14 @@ public class TrendBarBuilderServiceImplTest {
         currBuildersMap = new ConcurrentHashMap<>();
         currBuildersMap.put(trendBarEURUSD_M1, Optional.empty());
 
-        trendBarBuilderServiceImpl = TrendBarBuilderServiceImpl.builder()
-                .keyToQuotesQueueMap(keyToQuotesQueueMap)
-                .currBuildersMap(currBuildersMap)
-                .currMicroBatchersMap(currMicroBatchersMap)
-                .batchProcessor(batchProcessor)
-                .build();
+        trendBarBuilderServiceImpl = new TrendBarBuilderServiceImpl(
+                keyToQuotesQueueMap,
+                currBuildersMap,
+                currMicroBatchersMap,
+                batchProcessor
+        );
+        trendBarBuilderServiceImpl.setMICROBATCHER_EXECUTION_THRESHOLD_NUMBER(10);
+        trendBarBuilderServiceImpl.setMICROBATCHER_TIMEOUT_THRESHOLD_MILLIS(10_000);
     }
 
     @Test
